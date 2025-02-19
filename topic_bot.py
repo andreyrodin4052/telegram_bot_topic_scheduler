@@ -78,7 +78,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ("/start", "Start the bot and list all available commands."),
         ("/settime HH:MM", "Set the time for the daily reminder (in UTC)."),
         ("/add <topic> <exponent_base>", "Add a topic and an exponent base. If the last argument is not a number between 1 and 5, it is treated as part of the topic, and the exponent base defaults to 2."),
-        ("/remind [yyyy-mm-dd]", "Manually trigger the reminder for the specified or current date."),
+        ("/remind [yyyy-mm-dd]", "Manually trigger the topics reminder for the specified or current date."),
     ]
 
     # Create a formatted message with all commands and descriptions
@@ -114,7 +114,7 @@ async def set_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Save the new default time to the config file
         save_config(BOT_TOKEN, CHAT_ID, new_time_obj)
 
-        await update.message.reply_text(f"Time updated successfully! New time: {new_time_obj.strftime('%H:%M')} UTC")
+        await update.message.reply_text(f"Reminder time updated successfully! New time: {new_time_obj.strftime('%H:%M')} UTC")
     except ValueError as e:
         await update.message.reply_text(f"Error: {e}\nUsage: /settime HH:MM")
     except Exception as e:

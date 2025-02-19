@@ -99,7 +99,7 @@ class CalendarManager:
             events = self.calendar_db[date_obj]
             if events:
                 event_list = "\n".join([f"- {event}" for event in events])
-                return f"Events on {date}:\n{event_list}", True
+                return f"All topics to remember on {date}:\n{event_list}", True
             else:
                 return f"No events found for {date}.", False
         else:
