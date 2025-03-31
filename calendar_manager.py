@@ -149,8 +149,8 @@ class CalendarManager:
             except ValueError:
                 return "Invalid start date format. Please use 'YYYY-MM-DD'."
 
-        # Calculate the end date (10 years from the start date)
-        end_date_obj = start_date_obj + timedelta(days=365 * 10)
+        # Calculate the end date (30 years from the start date)
+        end_date_obj = start_date_obj + timedelta(days=365 * 30)
 
         # Initialize the gap
         gap = 1

@@ -5,12 +5,10 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
-from calendar_manager import CalendarManager  # Your custom library
+from calendar_manager import CalendarManager 
 
 # Enable logging
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
-)
+logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # JSON file to store configurations
@@ -26,6 +24,10 @@ exponent_base = None
 # Initialize CalendarManager
 calendar_db = CalendarManager()
 
+def verify_user(user_id: int) -> bool:
+    """Check if the user is authorized"""
+    return user_id == USER_ID
+
 def load_config():
     """Load configurations from the JSON file."""
     try:
@@ -34,17 +36,19 @@ def load_config():
             return (
                 config["BOT_TOKEN"],
                 config["CHAT_ID"],
+                config["USER_ID"],
                 time(hour=config["DEFAULT_TIME"]["hour"], minute=config["DEFAULT_TIME"]["minute"]),
             )
     except (FileNotFoundError, KeyError, json.JSONDecodeError) as e:
         logger.error(f"Error loading config file: {e}")
         raise RuntimeError("Failed to load configuration. Please check the config file.")
 
-def save_config(bot_token: str, chat_id: int, default_time: time):
+def save_config(bot_token: str, chat_id: int, user_id: int, default_time: time):
     """Save configurations to the JSON file."""
     config = {
         "BOT_TOKEN": bot_token,
         "CHAT_ID": chat_id,
+        "USER_ID": user_id,
         "DEFAULT_TIME": {"hour": default_time.hour, "minute": default_time.minute},
     }
     with open(CONFIG_FILE, "w") as file:
@@ -53,6 +57,9 @@ def save_config(bot_token: str, chat_id: int, default_time: time):
 async def remind_topic(app: Application, date: str = None):
     """Remind me of a topic every day at a given time."""
     # Use the provided date or the current date if none is provided
+    if not verify_user(USER_ID):
+        return
+    
     if date:
         try:
             # Validate the date format (yyyy-mm-dd)
@@ -73,6 +80,9 @@ async def remind_topic(app: Application, date: str = None):
         await app.bot.send_message(chat_id=CHAT_ID, text=text_event )
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not verify_user(USER_ID):
+        return
+
     """Start command to initialize the bot and list available commands."""
     commands = [
         ("/start", "Start the bot and list all available commands."),
@@ -89,6 +99,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(message)
 
 async def set_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    if not verify_user(USER_ID):
+        return
+
     """Update the time for the daily reminder."""
     try:
         # Check if more than one argument is provided
@@ -121,6 +135,10 @@ async def set_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f"An error occurred: {e}")
 
 async def add(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    if not verify_user(USER_ID):
+        return
+    
     """Add a topic and an exponent base."""
     global topic, exponent_base
 
@@ -151,6 +169,10 @@ async def add(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f"An error occurred: {e}")
 
 async def trigger_reminder(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    if not verify_user(USER_ID):
+        return
+
     """Manually trigger the reminder for the specified or current date."""
     try:
         # Get the optional date argument (if provided)
@@ -175,11 +197,11 @@ async def post_init(application: Application):
 
 def main():
     """Start the bot."""
-    global BOT_TOKEN, CHAT_ID, DEFAULT_TIME
+    global BOT_TOKEN, CHAT_ID, USER_ID, DEFAULT_TIME
 
     # Load configurations from the JSON file
     try:
-        BOT_TOKEN, CHAT_ID, DEFAULT_TIME = load_config()
+        BOT_TOKEN, CHAT_ID,USER_ID, DEFAULT_TIME = load_config()
     except RuntimeError as e:
         logger.error(e)
         return

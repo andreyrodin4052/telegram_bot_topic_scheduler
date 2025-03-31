@@ -1,6 +1,7 @@
 {
-    "BOT_TOKEN": "BOT_TOKEN",
-    "CHAT_ID": 123456789,
+    "BOT_TOKEN": "toket",
+    "CHAT_ID":  12345678,
+    "USER_ID": 87654321,
     "DEFAULT_TIME": {
         "hour": 16,
         "minute": 0
