@@ -14,6 +14,8 @@ logger = logging.getLogger(__name__)
 # JSON file to store configurations
 CONFIG_FILE = "config.json"
 
+#USER_ID = 1234;
+
 # Global scheduler
 scheduler = AsyncIOScheduler()
 
@@ -57,7 +59,8 @@ def save_config(bot_token: str, chat_id: int, user_id: int, default_time: time):
 async def remind_topic(app: Application, date: str = None):
     """Remind me of a topic every day at a given time."""
     # Use the provided date or the current date if none is provided
-    if not verify_user(USER_ID):
+    if not verify_user(update.effective_user.id):
+        await update.message.reply_text("You are not authorized to use this bot.")
         return
     
     if date:
@@ -80,7 +83,8 @@ async def remind_topic(app: Application, date: str = None):
         await app.bot.send_message(chat_id=CHAT_ID, text=text_event )
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not verify_user(USER_ID):
+    if not verify_user(update.effective_user.id):
+        await update.message.reply_text("You are not authorized to use this bot.")
         return
 
     """Start command to initialize the bot and list available commands."""
@@ -100,7 +104,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def set_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    if not verify_user(USER_ID):
+    if not verify_user(update.effective_user.id):
+        await update.message.reply_text("You are not authorized to use this bot.")
         return
 
     """Update the time for the daily reminder."""
@@ -136,7 +141,8 @@ async def set_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def add(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    if not verify_user(USER_ID):
+    if not verify_user(update.effective_user.id):
+        await update.message.reply_text("You are not authorized to use this bot.")
         return
     
     """Add a topic and an exponent base."""
@@ -170,7 +176,8 @@ async def add(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def trigger_reminder(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    if not verify_user(USER_ID):
+    if not verify_user(update.effective_user.id):
+        await update.message.reply_text("You are not authorized to use this bot.")
         return
 
     """Manually trigger the reminder for the specified or current date."""
